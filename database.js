@@ -1,6 +1,6 @@
 // database.js
-const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('./data/db.sqlite');
+const Database = require('better-sqlite3');
+const db = new Database('./data/db.sqlite');
 
 // Cria a tabela se não existir
 db.serialize(() => {
