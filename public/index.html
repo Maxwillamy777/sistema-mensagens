@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Mensagens Anônimas</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input, button { margin: 5px 0; display: block; padding: 8px; width: 100%; }
+    .box { max-width: 400px; margin-bottom: 40px; }
+    textarea { width: 100%; height: 100px; }
+  </style>
+</head>
+<body>
+  <h1>📩 Sistema de Mensagens</h1>
+
+  <div class="box" id="registro">
+    <h2>1. Registrar Novo Usuário</h2>
+    <button onclick="registrar()">Registrar</button>
+    <p id="registrado"></p>
+  </div>
+
+  <div class="box" id="login">
+    <h2>2. Login</h2>
+    <input type="number" id="idLogin" placeholder="ID">
+    <input type="text" id="senhaLogin" placeholder="Senha">
+    <button onclick="login()">Entrar</button>
+    <p id="statusLogin"></p>
+  </div>
+
+  <div class="box" id="mensagemBox" style="display:none;">
+    <h2>3. Enviar Mensagem</h2>
+    <textarea id="mensagem" placeholder="Digite sua mensagem"></textarea>
+    <button onclick="enviarMensagem()">Enviar</button>
+    <p id="mensagemStatus"></p>
+  </div>
+
+  <div class="box" id="verMensagens" style="display:none;">
+    <h2>4. Ver Minhas Mensagens</h2>
+    <button onclick="verMensagens()">Ver Mensagens</button>
+    <ul id="listaMensagens"></ul>
+  </div>
+
+  <script>
+    let usuario = { id: null, senha: null };
+
+    async function registrar() {
+      const res = await fetch('/registrar', { method: 'POST' });
+      const data = await res.json();
+      usuario = data;
+      document.getElementById('registrado').innerText = `Seu ID: ${data.id}, Senha: ${data.senha}`;
+    }
+
+    async function login() {
+      const id = document.getElementById('idLogin').value;
+      const senha = document.getElementById('senhaLogin').value;
+
+      const res = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, senha })
+      });
+
+      const data = await res.json();
+
+      if (data.sucesso) {
+        usuario = { id, senha };
+        document.getElementById('statusLogin').innerText = 'Login bem-sucedido!';
+        document.getElementById('mensagemBox').style.display = 'block';
+        document.getElementById('verMensagens').style.display = 'block';
+      } else {
+        document.getElementById('statusLogin').innerText = 'ID ou senha inválidos';
+      }
+    }
+
+    async function enviarMensagem() {
+      const texto = document.getElementById('mensagem').value;
+
+      const res = await fetch('/mensagem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: usuario.id, senha: usuario.senha, texto })
+      });
+
+      const data = await res.json();
+      document.getElementById('mensagemStatus').innerText = data.sucesso ? 'Mensagem enviada!' : 'Erro ao enviar mensagem';
+    }
+
+    async function verMensagens() {
+      const res = await fetch(`/mensagens/${usuario.id}`);
+      const mensagens = await res.json();
+      const lista = document.getElementById('listaMensagens');
+      lista.innerHTML = '';
+      mensagens.forEach(m => {
+        const li = document.createElement('li');
+        li.textContent = m.texto;
+        lista.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
