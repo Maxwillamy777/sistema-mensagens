@@ -1,18 +1,15 @@
-// server.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const db = require('./database');
 
 const app = express();
-const PORT = 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
 
 const path = require('path');
 app.use(express.static(path.join(__dirname, 'public')));
-
 
 /* ROTA: Registrar novo usuário */
 app.post('/registrar', (req, res) => {
@@ -36,7 +33,6 @@ app.post('/login', (req, res) => {
 /* ROTA: Enviar mensagem */
 app.post('/mensagem', (req, res) => {
   const { id, senha, texto } = req.body;
-  // Verificar se o usuário é válido
   db.get(`SELECT * FROM usuarios WHERE id = ? AND senha = ?`, [id, senha], (err, row) => {
     if (!row) return res.status(401).send({ error: 'Não autorizado' });
 
@@ -56,7 +52,12 @@ app.get('/mensagens/:id', (req, res) => {
   });
 });
 
+// PORTA para rodar localmente ou no Render
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
+
+
+
 
