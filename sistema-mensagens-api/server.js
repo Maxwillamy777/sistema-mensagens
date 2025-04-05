@@ -12,11 +12,15 @@ const path = require('path');
 app.use(express.static(path.join(__dirname, '../public')));
 
 /* ROTA: Registrar novo usuário */
+
 app.post('/registrar', (req, res) => {
   try {
     const senha = Math.random().toString(36).slice(-8); // senha aleatória
     db.run(`INSERT INTO usuarios (senha) VALUES (?)`, [senha], function (err) {
-      if (err) return res.status(500).send({ error: 'Erro ao registrar' });
+      if (err) {
+        console.error('Erro ao registrar:', err); // LOG do erro real
+        return res.status(500).send({ error: 'Erro ao registrar' });
+      }
       return res.send({ id: this.lastID, senha });
     });
   } catch (err) {
@@ -24,7 +28,6 @@ app.post('/registrar', (req, res) => {
     return res.status(500).send({ error: 'Erro interno no servidor' });
   }
 });
-
 /* ROTA: Login */
 app.post('/login', (req, res) => {
   try {
