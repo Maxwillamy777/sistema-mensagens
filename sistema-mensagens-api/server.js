@@ -9,7 +9,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const path = require('path');
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 /* ROTA: Registrar novo usuário */
 app.post('/registrar', (req, res) => {
